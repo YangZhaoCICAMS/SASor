@@ -1,0 +1,12 @@
+**********************************************************************************;
+** Created by: DemoYang;
+** Created Date: 2016/01/22;
+** Version: V1;
+**********************************************************************************;
+** Introduction;
+** The following program was used to import all the documents under a specific 
+** folder into SAS.
+
+** Writing all the documents` name into a .txt format file named "NameList" ;
+
+X ""
