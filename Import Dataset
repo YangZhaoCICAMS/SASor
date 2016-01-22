@@ -24,4 +24,51 @@ X "Dir D:\Sas_DataSets\
                       /B >
                           D:\Sas_DataSets\NameList.txt";
                           
+** Step 2;
+** Creating a macro for importing all the data from a specific folder;
+**********************************************************************************;
+** Macro Name: %Import_ALL_DSN;
+*************;
+** Parameters:
+***** 1. Outpath = , defining the phisical path for the folder;
 
+%Macro Import_All_Data(Path =);
+  
+  ** Reading the names of DataSets;
+  Data DataName;
+    Length DataName $200;
+      Infile "D:\Sas_DataSets\NameList.txt";
+      Input DataName;
+  Run;
+  
+  ** Creating the macro variable which contains all the datasets` name;
+  Proc SQL NoPrint;
+    Select DataName Into: DataNameList Separated by " "
+    From DataName;
+  Quit;
+  
+  ** Reading all the datasets from the folder;
+  %Let i = 1;
+  %Let DataName = %Scan(&DataNameList,&i);
+  %Do %Until &DataName = %Str();
+    %Let DataFormat = %Scan(Reverse(&DataName,1,'.'));
+    Proc Import DataFile = "&Path&&Name"
+                Out = MyData&i
+                DBMS =          %If %UpCase(&DataFormat) = %Str(XLS) %Then EXCEL;   ** Detecting the type of datasets
+                         %Else  %If &UpCase(&DataFormat) = %Str(TXT) %Then TAB;
+                         %Else  %If &UpCase(&DataFormat) = %Str(DBF) %Then MEMODBF;
+                         %Else  %If &UpCase(&DataFormat) = &Str(MDB) %Then ACCESS;
+                Replace;
+    Run;
+  
+    %Let i = %Eval(&i + 1);
+  %End;
+  
+  %Mend;
+
+**;
+** Example;
+**;
+
+%Let Path = D:\Sas_DataSets\;
+%Import(path = &Path);
